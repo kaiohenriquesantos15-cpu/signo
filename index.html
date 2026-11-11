@@ -1,1 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astrologia Mística</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a0b2e 0%, #3b1e64 50%, #6d3b9e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        #canvas-signos {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: #e0b0ff;
+            text-shadow: 0 0 10px rgba(224, 176, 255, 0.5);
+        }
+
+        p.subtitulo {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ccc;
+            font-size: 0.95rem;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #8a2be2;
+            background: rgba(0, 0, 0, 0.2);
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #e0b0ff;
+            box-shadow: 0 0 10px #e0b0ff;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: #9d4edd;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background: #c77dff;
+            transform: scale(1.02);
+        }
+
+        .resultado-box {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .resultado-box h2 {
+            text-align: center;
+            color: #fff;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .resultado-box .nome-pessoa {
+            text-align: center;
+            color: #c77dff;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .info-grupo {
+            margin-bottom: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .info-grupo strong {
+            color: #e0b0ff;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-grupo p {
+            color: #ddd;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .tag-palavras {
+            text-align: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.05rem;
+            margin-bottom: 15px;
+            color: #b57edc;
+        }
+
+        .btn-voltar {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            text-decoration: none;
+            color: #e0b0ff;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        .btn-voltar:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="canvas-signos"></canvas>
+
+    <div class="container">
+        <h1>🔮 Astrologia Mística</h1>
+
+        {% if not resultado %}
+        <p class="subtitulo">Insira seus dados para descobrir a energia do seu signo solar.</p>
+        <form action="/cadastrar" method="POST">
+            <input type="text" name="nome" placeholder="Nome Completo" required>
+
+            <!-- INPUT ATUALIZADO COM ID E MAXLENGTH -->
+            <input type="tel" name="data_nascimento" id="input-data" placeholder="Data de Nascimento (DD/MM/AAAA)"
+                maxlength="10" required>
+
+            <button type="submit">✨ Descobrir Meu Signo</button>
+        </form>
+        {% else %}
+        <div class="resultado-box">
+            <h2>Você é de {{ resultado.signo }}!</h2>
+            <p class="nome-pessoa">Leitura para {{ resultado.nome }}</p>
+
+            <div class="tag-palavras">{{ resultado.palavras }}</div>
+
+            <div class="info-grupo">
+                <strong>Personalidade</strong>
+                <p>{{ resultado.texto }}</p>
+            </div>
+
+            <div class="info-grupo">
+                <strong>Curiosidade Mística</strong>
+                <p>{{ resultado.curiosidade }}</p>
+            </div>
+
+            <a href="/" class="btn-voltar">↩ Consultar outro signo</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // --- SCRIPT DAS PARTÍCULAS (Fundo) ---
+        const canvas = document.getElementById('canvas-signos');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+        resize();
+
+        const simbolos = ["♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓"];
+        let particulas = [];
+        let mouse = { x: -1000, y: -1000, radius: 100 };
+
+        window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
+
+        class Particula {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * -height;
+                this.size = Math.random() * 20 + 15;
+                this.speedY = Math.random() * 1.5 + 0.5;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.simbolo = simbolos[Math.floor(Math.random() * simbolos.length)];
+                this.opacity = Math.random() * 0.4 + 0.1;
+                this.rotation = Math.random() * 360;
+                this.rotSpeed = Math.random() * 2 - 1;
+            }
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.rotation += this.rotSpeed;
+
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < mouse.radius) {
+                    let force = (mouse.radius - distance) / mouse.radius;
+                    this.x -= (dx / distance) * force * 5;
+                    this.y -= (dy / distance) * force * 5;
+                }
+
+                if (this.y > height + 50) {
+                    this.y = -50;
+                    this.x = Math.random() * width;
+                }
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation * Math.PI / 180);
+                ctx.fillStyle = `rgba(224, 176, 255, ${this.opacity})`;
+                ctx.font = `${this.size}px Arial`;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(this.simbolo, 0, 0);
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < 80; i++) { particulas.push(new Particula()); }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            particulas.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- SCRIPT DA MÁSCARA DE DATA ---
+        const inputData = document.getElementById('input-data');
+
+        // Se o input existir na página, ativa a máscara
+        if (inputData) {
+            inputData.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não for número
+
+                // Adiciona a primeira barra (DD/MM)
+                if (value.length > 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2);
+                }
+                // Adiciona a segunda barra (DD/MM/AAAA)
+                if (value.length > 5) {
+                    value = value.substring(0, 5) + '/' + value.substring(5);
+                }
+
+                e.target.value = value; // Devolve o valor formatado
+            });
+        }
+    </script>
+</body>
+
+</html>
